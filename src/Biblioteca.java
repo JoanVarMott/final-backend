@@ -1,68 +1,73 @@
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
+
 
 public class Biblioteca {
 
-    private HashMap<String, Libro> libros;
-    private ArrayList<Prestamo> prestamos;
+
+    private List<Libro> libros;
+
 
     public Biblioteca() {
-        this.libros = new HashMap<>();
-        this.prestamos = new ArrayList<>();
+        this.libros = new ArrayList<>();
     }
 
-    public void agregarLibro(String titulo, String autor, String genero) {
-        Libro libro = new Libro(titulo, autor, genero);
-        libros.put(titulo, libro);
+
+    public void agregarLibro(Libro libro) {
+        libros.add(libro);
     }
+
 
     public Libro buscarLibro(String titulo) {
-        return libros.get(titulo);
+        for (Libro libro : libros) {
+            if (libro.getTitulo().equals(titulo)) {
+                return libro;
+            }
+        }
+        return null;
     }
+
 
     public void eliminarLibro(String titulo) {
-        libros.remove(titulo);
-    }
-
-    public void listarLibros() {
-        for (Libro libro : libros.values()) {
-            System.out.println(libro);
+        Libro libroEncontrado = buscarLibro(titulo);
+        if (libroEncontrado != null) {
+            libros.remove(libroEncontrado);
         }
     }
 
-    public void prestarLibro(String titulo, String usuario) {
-        Libro libro = buscarLibro(titulo);
-        if (libro != null) {
-            if (!libro.isPrestado()) {
-                libro.setPrestado(true);
-                prestamos.add(new Prestamo(libro, usuario));
-                System.out.println("Libro prestado correctamente a " + usuario);
-            } else {
-                System.out.println("El libro ya está prestado");
-            }
+
+    public List<Libro> getLibros() {
+        return libros;
+    }
+
+
+    public void prestarLibro(Libro libro, Usuario usuario) {
+        if (!libro.isPrestado()) {
+            libro.prestar(usuario);
+            System.out.println("Libro prestado exitosamente a " + usuario.getNombre() + " " + usuario.getApellido());
         } else {
-            System.out.println("Libro no encontrado");
+            System.out.println("El libro " + libro.getTitulo() + " ya está prestado.");
         }
     }
 
-    public void devolverLibro(String titulo) {
-        Libro libro = buscarLibro(titulo);
-        if (libro != null) {
+
+    public void devolverLibro(Libro libro) {
+        if (libro.isPrestado()) {
+            libro.devolver();
+            System.out.println("Libro " + libro.getTitulo() + " devuelto exitosamente.");
+        } else {
+            System.out.println("El libro " + libro.getTitulo() + " no está prestado.");
+        }
+    }
+
+
+    public List<Libro> librosPrestados() {
+        List<Libro> librosPrestados = new ArrayList<>();
+        for (Libro libro : libros) {
             if (libro.isPrestado()) {
-                libro.setPrestado(false);
-                for (Prestamo prestamo : prestamos) {
-                    if (prestamo.getLibro().equals(libro)) {
-                        prestamos.remove(prestamo);
-                        System.out.println("Libro devuelto correctamente");
-                        break;
-                    }
-                }
-            } else {
-                System.out.println("El libro no está prestado");
+                librosPrestados.add(libro);
             }
-        } else {
-            System.out.println("Libro no encontrado");
         }
+        return librosPrestados;
     }
 }
-
